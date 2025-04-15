@@ -1,4 +1,3 @@
-
 import streamlit as st
 import random
 import time
@@ -42,52 +41,55 @@ if keuze == "Klassieke Reactietest":
 # --- Dynamische Positie Test ---
 elif keuze == "Dynamische Positie Test":
     st.subheader("📍 Dynamische Positie Test")
-    if "dyn_starttijd" not in st.session_state:
-        st.session_state.dyn_starttijd = 0
-        st.session_state.dyn_pos = None
-        st.session_state.dyn_active = False
+    if "dp_activatie" not in st.session_state:
+        st.session_state.dp_activatie = False
+        st.session_state.dp_starttijd = 0
+        st.session_state.dp_pos = None
 
-    if not st.session_state.dyn_active:
+    if not st.session_state.dp_activatie:
         if st.button("Start ronde"):
             wachttijd = random.uniform(2, 5)
-            st.session_state.dyn_starttijd = time.time() + wachttijd
-            st.session_state.dyn_pos = random.choice(["left", "center", "right"])
-            st.session_state.dyn_active = True
+            st.session_state.dp_starttijd = time.time() + wachttijd
+            st.session_state.dp_pos = random.choice(["left", "center", "right"])
+            st.session_state.dp_activatie = True
 
-    if st.session_state.dyn_active and time.time() >= st.session_state.dyn_starttijd:
+    if st.session_state.dp_activatie and time.time() >= st.session_state.dp_starttijd:
         col1, col2, col3 = st.columns(3)
-        cols = {"left": col1, "center": col2, "right": col3}
-        with cols[st.session_state.dyn_pos]:
+        doel = {"left": col1, "center": col2, "right": col3}
+        with doel[st.session_state.dp_pos]:
             if st.button("KLIK!"):
-                tijd = int((time.time() - st.session_state.dyn_starttijd) * 1000)
+                tijd = int((time.time() - st.session_state.dp_starttijd) * 1000)
                 st.success(f"Reactietijd: {tijd} ms")
                 st.session_state.scores[keuze].append(tijd)
-                st.session_state.dyn_active = False
+                st.session_state.dp_activatie = False
 
 # --- 9-Vak Lampjesspel ---
 elif keuze == "9-Vak Lampjesspel":
     st.subheader("🔲 9-Vak Lampjesspel")
-    if "lamp_positie" not in st.session_state:
-        st.session_state.lamp_positie = None
+    if "lamp_index" not in st.session_state:
+        st.session_state.lamp_index = None
         st.session_state.lamp_starttijd = None
 
     if st.button("Start ronde"):
-        st.session_state.lamp_positie = random.randint(0, 8)
+        st.session_state.lamp_index = random.randint(0, 8)
         st.session_state.lamp_starttijd = time.time()
 
     cols = st.columns(3)
     for i in range(9):
         kleur = "#ddd"
-        if st.session_state.lamp_positie == i:
+        if st.session_state.lamp_index == i:
             kleur = "lime"
         with cols[i % 3]:
             if st.button(" ", key=f"lampje_{i}", use_container_width=True):
-                if st.session_state.lamp_positie == i:
+                if st.session_state.lamp_index == i:
                     tijd = int((time.time() - st.session_state.lamp_starttijd) * 1000)
                     st.success(f"Reactietijd: {tijd} ms")
                     st.session_state.scores[keuze].append(tijd)
-                    st.session_state.lamp_positie = None
-            st.markdown(f"""<div style='height: 60px; background-color: {kleur}; border-radius: 8px;'></div>""", unsafe_allow_html=True)
+                    st.session_state.lamp_index = None
+            st.markdown(
+                f"<div style='height: 60px; background-color: {kleur}; border-radius: 8px;'></div>",
+                unsafe_allow_html=True
+            )
 
 # --- Scoreoverzicht ---
 if keuze != "-- Selecteer --" and st.session_state.scores[keuze]:
